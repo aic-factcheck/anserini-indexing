@@ -1,0 +1,33 @@
+#!/bin/bash
+#SBATCH --time=04:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
+#SBATCH --mem=32G
+#SBATCH --partition=cpufast
+#SBATCH --job-name anserini-index
+#SBATCH --out=../logs/anserini_fever_index.%j.out
+
+# source enfever_lrev_env.sh
+source csfever_lrev_env.sh
+
+# Make sure file/files in inputDataFolder are .json or .jsonl files
+# .xml wiki dump can be converted by wiki_to_jsonl.py script like below
+# 
+# python fever-cs-dataset/src/scripts/wiki_to_jsonl.py \
+#   /mnt/data/factcheck/fever/data-cs/cswiki.xml \
+#   /mnt/data/factcheck/fever/data-cs/cswiki.jsonl
+
+# Prepare the json/l files into jsonl format suitable for anserini
+python src/convert_collection_to_jsonl.py \
+    --collection_folder ${inputDataFolder} \
+    --output_folder ${outputDataFolder} \
+    --max_docs_per_file 10000000 \
+    --granularity 'paragraph'
+
+# Compute index
+python -m pyserini.index \
+    -collection JsonCollection \
+    -generator DefaultLuceneDocumentGenerator \
+    -threads 1 \
+    -input ${outputDataFolder} \
+    -index ${indexFolder} \
+    -storePositions -storeDocvectors -storeRaw
