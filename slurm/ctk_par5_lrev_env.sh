@@ -9,6 +9,8 @@ module load Java/11.0.2
 
 source /home/drchajan/devel/python/FC/experimental-martin/anserini/anserini_venv/bin/activate
 
+export _JAVA_OPTIONS=-Dfile.encoding=UTF-8
+
 export ROOT=/mnt/data/ctknews/factcheck/dataset/dr_concise_latest/models/anserini
 
 # compute index

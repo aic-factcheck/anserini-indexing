@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 
+import unicodedata
 import json
 import os
 import argparse
@@ -34,7 +35,7 @@ def convert_collection(args):
             with open(os.path.join(args.collection_folder, file), 'r', encoding='utf-8') as f:
                 for line in f:
                     line_json = json.loads(line.strip())
-                    doc_idx = line_json['id'].strip()
+                    doc_idx = line_json[args.id].strip()
                     if args.granularity == 'sentence':
                         # each li in "lines" is of the format: (sentence id)\t(sentence)[\t(tag)\t...\t(tag)]
                         docs = []
@@ -55,6 +56,7 @@ def convert_collection(args):
                             file_index += 1
 
                         output_dict = {'id': doc_idx, 'contents': doc}
+                        # output_dict = {'id': unicodedata.normalize('NFC', doc_idx), 'contents': unicodedata.normalize('NFC', doc)}
                         output_jsonl_file.write(json.dumps(output_dict, ensure_ascii=False) + '\n')
                         doc_index += 1
 
@@ -67,6 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Converts FEVER jsonl wikipedia dump to anserini jsonl files.')
     parser.add_argument('--collection_folder', required=True, help='FEVER wiki-pages directory.')
     parser.add_argument('--output_folder', required=True, help='Output directory.')
+    parser.add_argument('--id', default="id", help='Id name.')
     parser.add_argument('--max_docs_per_file',
                         default=1000000,
                         type=int,
