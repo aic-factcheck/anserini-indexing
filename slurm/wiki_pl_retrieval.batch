@@ -3,17 +3,16 @@
 #SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
 #SBATCH --mem=32G
 #SBATCH --partition=cpufast
-#SBATCH --job-name anserini-retrieval
-#SBATCH --out=../logs/anserini-fever-retrieval.%j.out
+#SBATCH --job-name anserini_wiki_retrieval
+#SBATCH --out=../logs/anserini_wiki_retrieval.%j.out
 
-# source enfever_lrev_env.sh
-# source csfever_lrev_env.sh
-source csfever_nli-filtered_env.sh
+source wiki_pl_20230801_env.sh
 
 mkdir -p ${RETRIEVAL}
 mkdir -p ${ROOT}/predictions
 
 # Generate queries and qrels files for the dev split = side-step needed by anserini
+echo "--------------- generate_queries_and_qrels ---------------"
 python src/generate_queries_and_qrels.py \
     --dataset_file ${DEV} \
     --output_queries_file ${RETRIEVAL}/queries.${SPLIT}.tsv \
@@ -21,6 +20,7 @@ python src/generate_queries_and_qrels.py \
     --granularity paragraph
 
 # Retrieval run
+echo "--------------- retrieve ---------------"
 python src/retrieve.py \
     --hits 500 --threads 1 \
     --index ${INDEX} \
@@ -29,11 +29,14 @@ python src/retrieve.py \
     --k1 ${k1} --b ${b}  # BEST HYPERPARAMETERS: CTK 0.6 0.5 | FEVER 0.9 0.9 1.2 0.5
 
 # Evaluate
-python src/evaluate_doc_retrieval.py \
-    --truth_file ${DEV} \
-    --run_file ${RETRIEVAL}/predicted.${SPLIT}.tsv
+# echo "--------------- evaluate_doc_retrieval ---------------"
+# python src/evaluate_doc_retrieval.py \
+#     --truth_file ${DEV} \
+#     --run_file ${RETRIEVAL}/predicted.${SPLIT}.tsv \
+#     --evidence_level doc
 
 # Prepare predictions file for DR evaluation
+echo "--------------- generate_predictions ---------------"
 python src/generate_predictions.py \
     --original_dev ${DEV} \
     --predictions ${PREDICTIONS} \

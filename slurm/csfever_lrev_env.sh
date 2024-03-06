@@ -17,13 +17,12 @@ export LANG=cs
 # compute index
 export inputDataFolder=/mnt/data/factcheck/fever/fever-data-deepl 
 export outputDataFolder=${ROOT}/data
-export indexFolder=${ROOT}/index
+export INDEX=${ROOT}/index
 
 # finetuning
 export TRAIN=/mnt/data/factcheck/fever/fever-data-deepl/nfc/train_deepl.jsonl
 export SUBSET=${ROOT}/data/train-subset.jsonl
 export FINETUNING=${ROOT}/finetuning
-export INDEX=${ROOT}/index
 
 export QUERIES=${FINETUNING}/queries.par.subset.tsv
 export QRELS=${FINETUNING}/qrels.par.subset.tsv

@@ -17,7 +17,7 @@ export LANG=cs
 # compute index
 export inputDataFolder=/mnt/data/factcheck/denikn/v1/interim/paragraphs
 export outputDataFolder=${ROOT}/data
-export indexFolder=${ROOT}/index
+export INDEX=${ROOT}/index
 
 # No labels (yet) for Parlamentni listy
 
@@ -25,7 +25,6 @@ export indexFolder=${ROOT}/index
 # export TRAIN=/mnt/data/ctknews/factcheck/par6/ctk-data/train.jsonl
 # export SUBSET=${ROOT}/data/train-subset.jsonl
 # export FINETUNING=${ROOT}/finetuning
-# export INDEX=${ROOT}/index
 
 # export QUERIES=${FINETUNING}/queries.par.subset.tsv
 # export QRELS=${FINETUNING}/qrels.par.subset.tsv

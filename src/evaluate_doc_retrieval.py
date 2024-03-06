@@ -15,11 +15,17 @@
 
 import argparse
 import json
+import unicodedata
+
 """
 Evaluates the (1) percentage of fully supported claims and (2) oracle accuracy
 for retrieval given an anserini run file. Intends to replicate the metrics in
 Table 2 in this paper: https://www.aclweb.org/anthology/N18-1074.pdf.
 """
+
+def nfc(s: str):
+    assert isinstance(s, str), s
+    return unicodedata.normalize("NFC", s)
 
 def evaluate_retrieval(args):
     evidences = {}
@@ -37,16 +43,20 @@ def evaluate_retrieval(args):
 
     # read in ground truth file and save each query's evidences
     with open(args.truth_file, 'r', encoding='utf-8') as f:
-        for line in f:
+        for i, line in enumerate(f):
             line_json = json.loads(line.strip())
-            query_id = line_json['id']
+            if 'id' in line_json:
+                query_id = line_json['id']
+            else:
+                query_id = i
+            
             if line_json['label'] == 'NOT ENOUGH INFO':
                 evidences[query_id] = []
             else:  # line_json['label'] == 'SUPPORTS' or line_json['label'] == 'REFUTES'
                 if args.evidence_level == "line":
-                    evidences[query_id] = [[evid[2] for evid in evid_set] for evid_set in line_json['evidence']]
+                    evidences[query_id] = [[nfc(evid[2]) for evid in evid_set] for evid_set in line_json['evidence']]
                 else:
-                    evidences[query_id] = line_json['evidence']
+                    evidences[query_id] = nfc(line_json['evidence'])
                 num_supported_queries += 1
             num_queries += 1
 
@@ -78,6 +88,7 @@ def evaluate_retrieval(args):
                 predicted_docs.clear()
 
             if int(rank) <= max(top_ks):
+                assert doc_id == nfc(doc_id)
                 predicted_docs.append(doc_id)
 
         # evaluate final query

@@ -17,7 +17,7 @@ export LANG=cs
 # compute index
 export inputDataFolder=/mnt/data/cro/factcheck/v1/interim/paragraphs_filtered
 export outputDataFolder=${ROOT}/data
-export indexFolder=${ROOT}/index
+export INDEX=${ROOT}/index
 # No labels (yet) for CRO
 
 # # finetuning

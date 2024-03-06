@@ -16,13 +16,12 @@ export ROOT=/mnt/data/factcheck/fever/data-en/models/anserini
 # compute index
 export inputDataFolder=/mnt/data/factcheck/fever/data-en/wiki-pages
 export outputDataFolder=${ROOT}/data
-export indexFolder=${ROOT}/index
+export INDEX=${ROOT}/index
 
 # finetuning
 export TRAIN=/mnt/data/factcheck/fever/data-en/fever-data/train.jsonl
 export SUBSET=${ROOT}/data/train-subset.jsonl
 export FINETUNING=${ROOT}/finetuning
-export INDEX=${ROOT}/index
 
 export QUERIES=${FINETUNING}/queries.par.subset.tsv
 export QRELS=${FINETUNING}/qrels.par.subset.tsv

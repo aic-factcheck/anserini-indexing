@@ -16,6 +16,10 @@
 import json
 import argparse
 import os
+import unicodedata
+
+def nfc(s: str):
+    return unicodedata.normalize("NFC", s)
 
 def generate_queries_and_qrels(args):
     queries = {}
@@ -33,8 +37,12 @@ def generate_queries_and_qrels(args):
 
         for line in f_in:
             line_json = json.loads(line.strip())
-            qid = line_json['id']
-            query = line_json['claim']
+            if 'id' in line_json:
+                qid = line_json['id']
+            else:
+                qid = len(queries)
+            query = nfc(line_json['claim'])
+
             if 'label' in line_json:  # no "label" field in test datasets
                 label = line_json['label']
 
@@ -47,12 +55,15 @@ def generate_queries_and_qrels(args):
             if args.output_qrels_file:
                 # dedupe evidences for the query
                 evidences = set()
-                for annotator in line_json['evidence']:
+                ev = line_json['evidence']
+                if isinstance(ev, list) and all(isinstance(e, str) for e in ev):
+                    ev = [ev]
+                for annotator in ev:
                     for evidence in annotator:
                         if args.granularity == 'sentence':
-                            evidences.add((evidence[2], evidence[3]))
+                            evidences.add((nfc(evidence[2]), evidence[3]))
                         else:  # args.granularity == 'paragraph'
-                            evidences.add(evidence[2])
+                            evidences.add(nfc(evidence[2]))
 
                 # write deduped evidences to qrels file
                 if args.granularity == 'sentence':

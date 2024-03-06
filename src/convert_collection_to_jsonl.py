@@ -23,6 +23,9 @@ also in JSONL format. This script converts them into a JSONL format compatible
 with anserini.
 """
 
+def nfc(s: str):
+    return unicodedata.normalize("NFC", s)
+
 def convert_collection(args):
     print('Converting collection...')
 
@@ -55,7 +58,7 @@ def convert_collection(args):
                             output_jsonl_file = open(output_path, 'w', encoding='utf-8', newline='\n')
                             file_index += 1
 
-                        output_dict = {'id': doc_idx, 'contents': doc}
+                        output_dict = {'id': nfc(doc_idx), 'contents': nfc(doc)}
                         # output_dict = {'id': unicodedata.normalize('NFC', doc_idx), 'contents': unicodedata.normalize('NFC', doc)}
                         output_jsonl_file.write(json.dumps(output_dict, ensure_ascii=False) + '\n')
                         doc_index += 1

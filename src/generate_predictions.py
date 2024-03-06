@@ -2,7 +2,10 @@ import sys
 import argparse
 import time
 import json
+import unicodedata
 
+from aic_nlp_utils.json import read_jsonl, read_json, write_json, write_jsonl
+from aic_nlp_utils.encoding import nfc
 
 def load_jsonl(input_path: str) -> list:
     """Read list of objects from a JSON lines file."""
@@ -17,6 +20,7 @@ def load_anserini_predictions(path: str) -> dict:
         predictions = {}
         for line in fr.readlines():
             idx, pred_id, _ = line.split('\t')
+            assert pred_id == nfc(pred_id)
             if idx not in predictions:
                 predictions[idx] = [pred_id]
             else:
@@ -36,9 +40,12 @@ if __name__ == '__main__':
     dev = load_jsonl(args.original_dev)
     predicted = load_anserini_predictions(args.predictions)
 
-    print(f"Saving predictions in {args.output}")
-    with open(args.output, 'w') as fw:
-        for claim in dev:
-            claim['predicted_pages'] = predicted[str(claim['id'])]
-            fw.write(json.dumps(claim, ensure_ascii=False) + '\n')
+    for idx, claim in enumerate(dev):
+        claim_id = str(claim.get('id', idx))
+        assert claim_id == nfc(claim_id)
+        claim['predicted_pages'] = predicted[claim_id]
+
+    print(f"Saving predictions to {args.output}")
+    write_jsonl(args.output, dev, mkdir=True)
+    
     print(f'Finished')
